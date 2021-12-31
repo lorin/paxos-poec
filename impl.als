@@ -3,6 +3,13 @@ open util/ordering[Nat]
 // Natural numbers
 sig Nat {}
 
+sig Zero extends Nat {}
+
+fact "zero is the first natural number" {
+	first = Zero
+}
+
+
 // values
 sig Val {}
 
@@ -36,7 +43,7 @@ sig Prepare extends Message {
 
 sig Promise extends Message {
 	aid: Acceptor,
-	pid: Proposer,
+	ppid: Proposer,
 	p: Proposal
 }
 
@@ -71,17 +78,20 @@ sig LearnerState extends State {
 	value: Val
 }
 
-abstract sig CallTransition {
-	op: Op,
+abstract sig Transition {
 	pre: State,
 	post: State,
-	sent: set Message
+	sent: set Message,
 }
 
-sig WriteTransition extends CallTransition {} {
-	Write in op
-	pre in ProposerState
-	post in ProposerState
+abstract sig CallTransition extends Transition{
+	op: Op
+}
+
+sig WriteTransition extends CallTransition {
+} {
+	op in Write
+	pre+post in ProposerState
 	post.proposer = pre.proposer
 	post.num = pre.proposer.n
 	(ProposerState <: post).value = op.val
@@ -92,5 +102,36 @@ sig WriteTransition extends CallTransition {} {
 		s.n = post.num
 	}
 }
+
+sig ReadTransition extends CallTransition {
+	rval: Val
+} {
+	op in Read
+	pre+post in LearnerState
+	pre=post
+	rval=(LearnerState <: pre).value
+}
+
+
+abstract sig ReceiveTransition extends Transition {
+	msg: Message
+}
+
+sig PromiseTransition extends ReceiveTransition {} {
+	msg in Promise
+	pre+post in ProposerState
+	post.proposer = pre.proposer
+	let promise = Promise <: msg | {
+		promise.ppid=pre.proposer
+		post.responses = pre.responses + promise.aid
+		let proposal = promise.p | {
+			post.num = ((proposal.n = Zero) implies pre.num else proposal.n)
+			(Proposer <: post).value = ((proposal.n = Zero) implies (Proposer <: pre).value else proposal.v)
+		}
+	}
+}
+
+
+
 
 run { some WriteTransition }
