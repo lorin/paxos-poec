@@ -74,13 +74,23 @@ sig LearnerState extends State {
 abstract sig CallTransition {
 	op: Op,
 	pre: State,
-	sent: set Message,
-	post: State
+	post: State,
+	sent: set Message
 }
 
 sig WriteTransition extends CallTransition {} {
 	Write in op
 	pre in ProposerState
 	post in ProposerState
+	post.proposer = pre.proposer
+	post.num = pre.proposer.n
+	(ProposerState <: post).value = op.val
 
+	let s = (sent <: Prepare) | {
+		one s
+		s.pid = pre.proposer
+		s.n = post.num
+	}
 }
+
+run { some WriteTransition }
