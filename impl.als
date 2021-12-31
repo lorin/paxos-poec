@@ -131,7 +131,11 @@ sig PromiseTransition extends ReceiveTransition {} {
 	}
 }
 
+sig PrepareTransition extends ReceiveTransition {}
+sig AcceptTransition extends ReceiveTransition {}
+sig AcceptedTransition extends ReceiveTransition {}
 
 
 
-run { some WriteTransition }
+
+run { some ReadTransition }
