@@ -9,15 +9,11 @@ abstract sig Role {}
 // because we can use the objects themselves
 sig Proposer extends Role {
 	n: Natural
-} {
-	// Nobody has proposal number zero
-	no n & natural/Zero
 }
 
 fact "all proposers use different proposal numbers" {
 	no disj p1,p2: Proposer | p1.n = p2.n
 }
-
 
 sig Acceptor extends Role {}
 
@@ -155,21 +151,22 @@ sig PrepareTransition extends ReceiveTransition {} {
 }
 
 sig AcceptTransition extends ReceiveTransition {} {
-	msg in Accept
-	pre+post in AcceptorState
-	post.acceptor = pre.acceptor
-	pre.acceptor in msg.ids => {
-		natural/ge[msg.p.n, pre.promised] => {
-			post.accepted = msg.p
-			some m : Accept | {
-				sent = m
-				m.aid = pre.acceptor
-				m.p = msg.p
+	let accept = Accept <: msg |  {
+		some accept
+		pre+post in AcceptorState
+		post.acceptor = pre.acceptor
+		pre.acceptor in accept.ids => {
+			natural/gte[accept.p.n, pre.promised] => {
+				post.accepted = accept.p
+				some accepted : Accepted | {
+					sent = accepted
+					accepted.aid = pre.acceptor
+					accepted.p = accept.p
+				}
 			}
 		}
 	}
 }
-
 
 sig AcceptedTransition extends ReceiveTransition {}
 
