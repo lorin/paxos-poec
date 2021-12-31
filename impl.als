@@ -66,7 +66,7 @@ sig ProposerState extends State {
 sig AcceptorState extends State {
 	acceptor: Acceptor,
 	accepted: lone Proposal,
-	promised: Natural
+	promised: lone Natural
 }
 
 sig LearnerState extends State {
@@ -188,12 +188,14 @@ fact "every proposer init transition is associated with a different proposer" {
 }
 
 
-sig AcceptorInitTransition extends InitTransition {
-
-
+sig AcceptorInitTransition extends InitTransition {} {
+	no accepted
+	no promised
 }
 
-sig LearnerInitTransition extends InitTransition {}
+sig LearnerInitTransition extends InitTransition {} {
+	no votes
+}
 
 
 // Transport guarantees
