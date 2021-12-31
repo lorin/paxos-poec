@@ -59,8 +59,7 @@ abstract sig State {}
 
 sig ProposerState extends State {
 	proposer: Proposer,
-	num: Natural,
-	value: Val,
+	value: lone Val,
 	responses: set Acceptor
 }
 
@@ -89,13 +88,12 @@ sig WriteTransition extends CallTransition {
 	op in Write
 	pre+post in ProposerState
 	post.proposer = pre.proposer
-	post.num = pre.proposer.n
 	(ProposerState <: post).value = op.val
 
 	let s = (sent <: Prepare) | {
 		one s
 		s.pid = pre.proposer
-		s.n = post.num
+		s.n = pre.proposer.n
 	}
 }
 
@@ -122,7 +120,7 @@ sig PromiseTransition extends ReceiveTransition {} {
 		post.responses = pre.responses + promise.aid
 
 		let proposal = promise.p | {
-			some proposal => (Proposer <: post).value = proposal.v
+			some proposal => (ProposerState <: post).value = proposal.v
 		}
 	}
 }
@@ -180,11 +178,21 @@ abstract sig InitTransition extends Transition {} {
 	no pre
 }
 
-// TODO
-sig ProposerInitTransition extends InitTransition {}
-// TODO
-sig AcceptorInitTransition extends InitTransition {}
-// TODO
+sig ProposerInitTransition extends InitTransition {} {
+	no value
+	no responses
+}
+
+fact "every proposer init transition is associated with a different proposer" {
+	no disj p1, p2: ProposerInitTransition | p1.post.proposer = p2.post.proposer
+}
+
+
+sig AcceptorInitTransition extends InitTransition {
+
+
+}
+
 sig LearnerInitTransition extends InitTransition {}
 
 
