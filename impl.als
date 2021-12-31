@@ -1,36 +1,33 @@
-open util/ordering[Nat]
-
-// Natural numbers
-sig Nat {}
-
-sig Zero extends Nat {}
-
-fact "zero is the first natural number" {
-	first = Zero
-}
-
+open util/natural
 
 // values
 sig Val {}
-
-// Undef is a special value
-one sig Undef extends Val {}
 
 abstract sig Role {}
 
 // We're not going to explicitly model the ids,
 // because we can use the objects themselves
 sig Proposer extends Role {
-	n: Nat
+	n: Natural
+} {
+	// Nobody has proposal number zero
+	no n & natural/Zero
 }
+
+fact "all proposers use different proposal numbers" {
+	no disj p1,p2: Proposer | p1.n = p2.n
+}
+
 
 sig Acceptor extends Role {}
 
 // We'll assume one learner for simplicitly
-one sig Learner {}
+one sig Learner {
+	votes: Acceptor -> Val
+}
 
 sig Proposal {
-	n: Nat,
+	n: Natural,
 	v: Val
 }
 
@@ -38,17 +35,22 @@ abstract sig Message {}
 
 sig Prepare extends Message {
 	pid: Proposer,
-	n: Nat
+	n: Natural
 }
 
 sig Promise extends Message {
 	aid: Acceptor,
 	ppid: Proposer,
-	p: Proposal
+	p: lone Proposal
 }
 
 sig Accept extends Message {
 	ids: set Acceptor,
+	p: Proposal
+}
+
+sig Accepted extends Message {
+	aid: Acceptor,
 	p: Proposal
 }
 
@@ -63,23 +65,24 @@ abstract sig State {}
 
 sig ProposerState extends State {
 	proposer: Proposer,
-	num: Nat,
+	num: Natural,
 	value: Val,
 	responses: set Acceptor
 }
 
 sig AcceptorState extends State {
-	promised: Nat,
-	v: Val
+	acceptor: Acceptor,
+	accepted: lone Proposal,
+	promised: Natural
 }
 
 sig LearnerState extends State {
-	acceptors: Nat->set Acceptor,
+	acceptors: Natural->set Acceptor,
 	value: Val
 }
 
 abstract sig Transition {
-	pre: State,
+	pre: lone State,
 	post: State,
 	sent: set Message,
 }
@@ -124,16 +127,38 @@ sig PromiseTransition extends ReceiveTransition {} {
 	let promise = Promise <: msg | {
 		promise.ppid=pre.proposer
 		post.responses = pre.responses + promise.aid
+
 		let proposal = promise.p | {
-			post.num = ((proposal.n = Zero) implies pre.num else proposal.n)
-			(Proposer <: post).value = ((proposal.n = Zero) implies (Proposer <: pre).value else proposal.v)
+			some proposal => (Proposer <: post).value = proposal.v
 		}
 	}
 }
 
-sig PrepareTransition extends ReceiveTransition {}
+sig PrepareTransition extends ReceiveTransition {} {
+	msg in Prepare
+	pre+post in AcceptorState
+	post.acceptor = pre.acceptor
+	post.promised = natural/max[pre.promised + (Prepare <: msg).n]
+	post.accepted = pre.accepted
+	// We only send if msg.n was greater than what we promised
+	natural/gt[msg.n, pre.promised] => {
+		let snt = Promise <: sent | {
+			one snt
+			snt.aid = pre.acceptor
+			snt.ppid = msg.pid
+			some v => {
+				one Proposal <: snt.p
+				snt.p.n = pre.promised
+			}
+		}
+	}
+}
+
 sig AcceptTransition extends ReceiveTransition {}
 sig AcceptedTransition extends ReceiveTransition {}
+
+
+// Transport guarantees
 
 
 

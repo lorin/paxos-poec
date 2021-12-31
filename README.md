@@ -27,6 +27,10 @@ F(read, C) evaluates to the falue written by the first write in E according to t
 
 We're going to implement the Paxos protocol in Burckhardt's pseudocode, using the description in [Paxos Made Simple][PMS].
 
+To keep things simple, I'm going to assume there's a single Learner, that reliably receives "accepted" messages from all of the acceptors.
+
+All other message can potentially be lost.
+
 ```
 // default of Val is undef
 
@@ -54,7 +58,7 @@ protocol Paxos<Val> {
 
 	message Accept(ids: set<nat>, p: Proposal) : dontforge
 
-	message Accepted(aid: nat, p: Proposal): dontforge
+	message Accepted(aid: nat, p: Proposal): reliable
 
   // From Paxos Made Simple:
   //    Different proposers choose their numbers from disjoint sets of numbers,
@@ -64,17 +68,12 @@ protocol Paxos<Val> {
 	// We also pass in a unique id, pid.
 	role Proposer(pid: nat, n: nat) {
 
-    var num: nat
 		var value: Val;
 		var responses: set<nat>; // set of ids of acceptors that responded
 
-
 		operation write(val: Val) {
-			// Initialize num if it hasn't been initialized yet
-			if(num = 0) { num = n }
-
 			// This starts Phase 1
-			send Prepare(pid, num);
+			send Prepare(pid, n);
 			value := val;
 
 		}
@@ -85,7 +84,6 @@ protocol Paxos<Val> {
 				responses := responses + {aid} ;
 				// If the acceptor already accepted a value, we have to use that one
 				if(p.n > 0) {
-					num := p.n;
 					value := p.v;
 				}
 
@@ -93,7 +91,7 @@ protocol Paxos<Val> {
 				if(|responses| >= MAJORITY) {
 
 					// This sends an accept to all of the acceptors that responded with the promise
-					send Accept(responses, Proposal(num, value));
+					send Accept(responses, Proposal(n, value));
 
 					// There's a risk of multiple returns from the same response, so
 					// really we should check first to make sure we haven't returned yet,
@@ -105,47 +103,63 @@ protocol Paxos<Val> {
 	}
 
 	role Acceptor(aid: nat) {
-		var promised : nat;
-		var v: Val;
+		// p5
+		// an acceptor needs to remember only the highest numbered proposal that it has ever accepted
+		// and the number of the highest numbered prepare request to which it has responded.
+		var accepted: Proposal; // highest numbered proposal accepted
+		var promised : nat; // highest numbered prepared request
 
-		receive Prepare(p) {
+    // p5
+		receive Prepare(n) {
 			// Phase 1b
 			// P1a: An acceptor can accept a proposal numbered n iff it has not responded
 			// to a prepare request having a number greater than n.
 			if(n > promised) {
 				promised := n;
-				send Promise(aid, pid, Proposal(promised, v));
+				send Promise(aid, pid, accepted);
 			}
 		}
 
-		receive Accept(ids, n, vv) {
+		receive Accept(ids, n, v) {
 			if(aid in ids) {
 				if(n >= promised) {
-					v := vv;
-					send Accepted(aid, Proposal(n, v));
+					accepted := Proposal(n,v);
+					send Accepted(aid, accepted);
 				}
 			}
 		}
 	}
 
+
 	role Learner {
-		var acceptors: tmap<nat, set<nat>>; // ballot -> set acceptor-id
-		var value : Val;
+		var votes: pmap<nat, Val> // aid -> value
 
 		message Accepted(aid: nat, p: Proposal) {
-			acceptors[p.n] := acceptors[p.n] + {aid}
-			if(|acceptors[p.n]| >= MAJORITY) {
-				// Once we have a majority, we record the value
-				value := p.v;
-			}
+			votes[aid] := p.v
 		}
 
+    // Return the value that has the majority of votes,
+		// or undef if nobody has a majority
 		operation read() {
-			return value; // this will be "undef" before a write
+			var tally: pmap<Val, nat>
+			// tally up the votes
+			foreach((aid, v) in votes) {
+				tally[v] := tally[v] + 1
+				if(tally[v]>= MAJORITY) {
+					return v;
+				}
+			}
+			return undef;
 		}
 	}
 }
 ```
+
+## Translating to Alloy
+
+See Section 8.4 Pseudocode Compilation (p101) of [PoEC].
+
+
 
 
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
