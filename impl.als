@@ -18,9 +18,7 @@ fact "all proposers use different proposal numbers" {
 sig Acceptor extends Role {}
 
 // We'll assume one learner for simplicitly
-one sig Learner {
-	votes: Acceptor -> Val
-}
+one sig Learner {}
 
 sig Proposal {
 	n: Natural,
@@ -73,8 +71,7 @@ sig AcceptorState extends State {
 }
 
 sig LearnerState extends State {
-	acceptors: Natural->set Acceptor,
-	value: Val
+	votes: Acceptor -> Val
 }
 
 abstract sig Transition {
@@ -103,12 +100,12 @@ sig WriteTransition extends CallTransition {
 }
 
 sig ReadTransition extends CallTransition {
-	rval: Val
+	rval: lone Val
 } {
 	op in Read
-	pre+post in LearnerState
-	pre=post
-	rval=(LearnerState <: pre).value
+	some pre & LearnerState
+	post = pre
+	rval = {v: Val | gte[#pre.votes.v, next[div[#Acceptor, 2]]] }
 }
 
 
@@ -168,12 +165,27 @@ sig AcceptTransition extends ReceiveTransition {} {
 	}
 }
 
-sig AcceptedTransition extends ReceiveTransition {}
+sig AcceptedTransition extends ReceiveTransition {} {
+	let accepted = Accepted <: msg | {
+		some accepted
+		some pre & LearnerState
+		some post & LearnerState
+		post.votes = pre.votes ++ accepted.aid->accepted.p.v
+	}
+
+}
 
 
 abstract sig InitTransition extends Transition {} {
 	no pre
 }
+
+// TODO
+sig ProposerInitTransition extends InitTransition {}
+// TODO
+sig AcceptorInitTransition extends InitTransition {}
+// TODO
+sig LearnerInitTransition extends InitTransition {}
 
 
 // Transport guarantees
