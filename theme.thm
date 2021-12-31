@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Accept"/>
+   <type name="Accepted"/>
+   <type name="AcceptedTransition"/>
+   <type name="Acceptor"/>
+   <type name="AcceptorInitTransition"/>
+   <type name="AcceptorState"/>
+   <type name="AcceptTransition"/>
+   <type name="CallTransition"/>
+   <type name="InitTransition"/>
+   <type name="Int"/>
+   <type name="LearnerInitTransition"/>
+   <type name="LearnerState"/>
+   <type name="Message"/>
+   <type name="Op"/>
+   <type name="Prepare"/>
+   <type name="PrepareTransition"/>
+   <type name="Promise"/>
+   <type name="PromiseTransition"/>
+   <type name="Proposal"/>
+   <type name="Proposer"/>
+   <type name="ProposerInitTransition"/>
+   <type name="ProposerState"/>
+   <type name="Read"/>
+   <type name="ReadTransition"/>
+   <type name="ReceiveTransition"/>
+   <type name="Role"/>
+   <type name="State"/>
+   <type name="String"/>
+   <type name="Transition"/>
+   <type name="univ"/>
+   <type name="Val"/>
+   <type name="Write"/>
+   <type name="WriteTransition"/>
+   <type name="seq/Int"/>
+   <type name="natural/ord/Ord"/>
+   <set name="natural/One" type="natural/Natural"/>
+   <set name="natural/Zero" type="natural/Natural"/>
+</node>
+
+<node hideunconnected="yes">
+   <type name="natural/Natural"/>
+</node>
+
+<node visible="no">
+   <type name="Learner"/>
+</node>
+
+<edge visible="no" attribute="yes">
+   <relation name="n"> <type name="Prepare"/> <type name="natural/Natural"/> </relation>
+   <relation name="n"> <type name="Proposal"/> <type name="natural/Natural"/> </relation>
+   <relation name="n"> <type name="Proposer"/> <type name="natural/Natural"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
