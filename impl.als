@@ -154,8 +154,29 @@ sig PrepareTransition extends ReceiveTransition {} {
 	}
 }
 
-sig AcceptTransition extends ReceiveTransition {}
+sig AcceptTransition extends ReceiveTransition {} {
+	msg in Accept
+	pre+post in AcceptorState
+	post.acceptor = pre.acceptor
+	pre.acceptor in msg.ids => {
+		natural/ge[msg.p.n, pre.promised] => {
+			post.accepted = msg.p
+			some m : Accept | {
+				sent = m
+				m.aid = pre.acceptor
+				m.p = msg.p
+			}
+		}
+	}
+}
+
+
 sig AcceptedTransition extends ReceiveTransition {}
+
+
+abstract sig InitTransition extends Transition {} {
+	no pre
+}
 
 
 // Transport guarantees
