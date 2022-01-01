@@ -1,5 +1,7 @@
 # Paxos modeled using Principles of Eventual Consistency in Alloy
 
+![example run](example.png)
+
 This repo models the Paxos algorithm using Sebastian Burckhardt's approach for modeling eventually consistent data types.
 This approach is documented in his excellent (and free!) book [Principles of Eventual Consistency][PoEC], which I'll refer to here as PoEC.
 
