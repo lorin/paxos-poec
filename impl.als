@@ -6,14 +6,16 @@ sig Val {}
 
 abstract sig Role {
 	events: set Transition,
-	eor: Transition->Transition
+	// eor: Transition->set Transition
 
 } {
 	events = role.this
-	eor = events <: eo :> events
+	// eor = events <: eo :> events
 
+/*
 	all e: events |
 		(no e.pre and no predd[e, eor]) or predd[e, eor].post = e.pre
+		*/
 }
 
 
@@ -95,8 +97,12 @@ abstract sig Transition {
 // p87
 fact "eo is an enumeration" {
 	// an enumeration is a natural total ordering
-	// We don't have to worry about the natural part because everything's finite
-	relation/totalOrder[eo, Transition]
+	// but we acutally don't want total, since we don't want reflexive
+
+	all disj e1,e2: Transition | (e1->e2) in eo or (e2->e1) in eo
+	relation/transitive[eo]
+	relation/acyclic[eo, Transition]
+
 }
 
 fact "delivery properties" {
