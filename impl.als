@@ -261,13 +261,3 @@ run {
 	some ReadTransition
 	some WriteTransition
 } for 5
-
-/*
-run {
-	// some Proposer
-	// some Acceptor
-	// all r: Role | some r.events
-	//some ReadTransition
-	some WriteTransition
-} for 7 but 1 Acceptor, 1 Proposer, 1 ProposerInitTransition, 1 LearnerInitTransition, 1 AcceptorInitTransition, 1 ReadTransition, 1 WriteTransition, 1 Val, 1 Proposal, 1 Prepare, 1 Promise, 1 Accept, 1 Accepted
-*/
