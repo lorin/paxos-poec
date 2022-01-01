@@ -191,7 +191,8 @@ sig PromiseTransition extends ReceiveTransition {} {
 sig PrepareTransition extends ReceiveTransition {} {
 	role in Acceptor
 	msg in Prepare
-	pre+post in AcceptorState
+	pre in AcceptorState
+	post in AcceptorState
 	post.acceptor = pre.acceptor
 	post.promised = natural/max[pre.promised + (Prepare <: msg).n]
 	post.accepted = pre.accepted
@@ -288,8 +289,14 @@ assert readsAlwaysReturnSameValue {
 // check readsAlwaysReturnSameValue for 11 but 1 Proposer, 1 Acceptor, 2 ReadTransition
 
 run {
+	some AcceptorInitTransition
+	some Prepare
+	// some Promise
+	// some ProposerState.responses
+	// some PromiseTransition
 	// some LearnerState.votes
-	some ReadTransition.rval
+	// some Accept
+	// some ReadTransition.rval
 } for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
 
 /*
