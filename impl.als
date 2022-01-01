@@ -1,12 +1,25 @@
 open util/natural
+open util/relation
 
 // values
 sig Val {}
 
-abstract sig Role {}
+abstract sig Role {
+	events: set Transition,
+	eor: Transition->Transition
 
-// We're not going to explicitly model the ids,
-// because we can use the objects themselves
+} {
+	events = role.this
+	eor = events <: eo :> events
+	// some InitTransition & events
+
+/*
+	all e: events |
+		(no e.pre and no predd[e, eor]) or predd[e, eor].post = e.pre
+*/
+}
+
+
 sig Proposer extends Role {
 	n: Natural
 }
@@ -18,7 +31,7 @@ fact "all proposers use different proposal numbers" {
 sig Acceptor extends Role {}
 
 // We'll assume one learner for simplicitly
-one sig Learner {}
+one sig Learner extends Role {}
 
 sig Proposal {
 	n: Natural,
@@ -53,7 +66,7 @@ sig Write extends Op {
 	val: Val
 }
 
-sig Read extends Op {}
+one sig Read extends Op {}
 
 abstract sig State {}
 
@@ -77,7 +90,30 @@ abstract sig Transition {
 	pre: lone State,
 	post: State,
 	sent: set Message,
+	eo: set Transition,
+	role: Role,
+	del: set Transition
 }
+
+// p87
+fact "eo is an enumeration" {
+	// an enumeration is a natural total ordering
+	// We don't have to worry about the natural part because everything's finite
+	relation/totalOrder[eo, Transition]
+}
+
+fact "delivery properties" {
+	// del is a binary, injective relation
+	relation/injective[del, Transition]
+	// that satisfies the following property:
+	all s, r : Transition | (s->r in del) => {
+		s->r in eo
+		some r.msg
+		r.msg in s.sent
+	}
+
+}
+
 
 abstract sig CallTransition extends Transition{
 	op: Op
@@ -85,6 +121,7 @@ abstract sig CallTransition extends Transition{
 
 sig WriteTransition extends CallTransition {
 } {
+	role in Proposer
 	op in Write
 	pre+post in ProposerState
 	post.proposer = pre.proposer
@@ -100,6 +137,7 @@ sig WriteTransition extends CallTransition {
 sig ReadTransition extends CallTransition {
 	rval: lone Val
 } {
+	role in Learner
 	op in Read
 	some pre & LearnerState
 	post = pre
@@ -112,6 +150,7 @@ abstract sig ReceiveTransition extends Transition {
 }
 
 sig PromiseTransition extends ReceiveTransition {} {
+	role in Proposer
 	msg in Promise
 	pre+post in ProposerState
 	post.proposer = pre.proposer
@@ -126,6 +165,7 @@ sig PromiseTransition extends ReceiveTransition {} {
 }
 
 sig PrepareTransition extends ReceiveTransition {} {
+	role in Acceptor
 	msg in Prepare
 	pre+post in AcceptorState
 	post.acceptor = pre.acceptor
@@ -146,6 +186,7 @@ sig PrepareTransition extends ReceiveTransition {} {
 }
 
 sig AcceptTransition extends ReceiveTransition {} {
+	role in Acceptor
 	let accept = Accept <: msg |  {
 		some accept
 		pre+post in AcceptorState
@@ -164,6 +205,7 @@ sig AcceptTransition extends ReceiveTransition {} {
 }
 
 sig AcceptedTransition extends ReceiveTransition {} {
+	role in Learner
 	let accepted = Accepted <: msg | {
 		some accepted
 		some pre & LearnerState
@@ -179,6 +221,7 @@ abstract sig InitTransition extends Transition {} {
 }
 
 sig ProposerInitTransition extends InitTransition {} {
+	role in Proposer
 	no value
 	no responses
 }
@@ -189,18 +232,37 @@ fact "every proposer init transition is associated with a different proposer" {
 
 
 sig AcceptorInitTransition extends InitTransition {} {
+	role in Acceptor
 	no accepted
 	no promised
 }
 
 sig LearnerInitTransition extends InitTransition {} {
+	role in Learner
 	no votes
 }
 
+// Predecesor. We can't use "pred" because that means "predicate"
+fun predd[t: Transition, r: Transition->Transition] : lone Transition {
+	{e : Transition-t | {
+		e->t in r
+		no f : Transition-(e+t) | {
+			e->f in r
+			f->t in r
+		}
+	}
+	}
+}
 
 // Transport guarantees
 
 
 
 
-run { some ReadTransition }
+run {
+	some Proposer
+	some Acceptor
+	all r: Role | some r.events
+	//some ReadTransition
+	some WriteTransition
+} for 11 but 1 Acceptor, 1 Proposer, 1 ProposerInitTransition, 1 LearnerInitTransition, 1 AcceptorInitTransition, 1 ReadTransition, 1 WriteTransition, 1 Val, 1 Proposal, 1 Prepare, 1 Promise, 1 Accept, 1 Accepted
