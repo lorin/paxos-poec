@@ -98,7 +98,6 @@ fact "eo is an enumeration" {
 	// but we acutally don't want total, since we don't want reflexive
 
 	all disj e1,e2: Transition | (e1->e2) in eo or (e2->e1) in eo
-	relation/transitive[eo]
 	relation/acyclic[eo, Transition]
 
 }
@@ -128,6 +127,7 @@ sig WriteTransition extends CallTransition {
 	post.proposer = pre.proposer
 	post.value in op.val
 
+  // TODO: fix this logic here, do set builder notation, set comprehension
 	let s = (sent <: Prepare) | {
 		one s
 		s.pid = pre.proposer
