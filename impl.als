@@ -6,9 +6,10 @@ sig Val {}
 
 abstract sig Role {
 	events: set Transition,
-	 eor: Transition->set Transition
+	eor: Transition->set Transition
 
 } {
+	some events
 	events = role.this
 	eor = events <: eo :> events
 
@@ -306,14 +307,18 @@ assert readsAlwaysReturnSameValue {
 
 
 run {
-	some ProposerInitTransition
-	some AcceptorInitTransition
-	some LearnerInitTransition
-	some WriteTransition
-	some PrepareTransition
+	//#Acceptor=3
+	#Proposer=2
+	#WriteTransition=2
+	some ReadTransition.rval
+	// some ProposerInitTransition
+	// some AcceptorInitTransition
+	// some LearnerInitTransition
+	// some WriteTransition
+	// some PrepareTransition
 
-	some Promise
-	some PromiseTransition
+	// some Promise
+	// some PromiseTransition
 
 	//some Promise
 	//some ReadTransition
@@ -321,8 +326,8 @@ run {
 	// some PromiseTransition
 	// some LearnerState.votes
 	// some Accept
-	some ReadTransition.rval
-}  for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
+}  for 11 but 1 Acceptor, 2 Proposer, 1 ReadTransition, 2 WriteTransition
+// for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
 //for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
 
 /*
