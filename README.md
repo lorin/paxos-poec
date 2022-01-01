@@ -173,5 +173,5 @@ You can find my model at [impl.als](impl.als).
 
 
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
-[PMC]: https://lamport.azurewebsites.net/pubs/paxos-simple.pdf
+[PMS]: https://lamport.azurewebsites.net/pubs/paxos-simple.pdf
 [Alloy]: https://alloy.readthedocs.io/
