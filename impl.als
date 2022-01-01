@@ -146,6 +146,10 @@ abstract sig ReceiveTransition extends Transition {
 	msg: Message
 }
 
+fact "All messages that exist must have been sent" {
+	Message in Transition.sent
+}
+
 sig PromiseTransition extends ReceiveTransition {} {
 	role in Proposer
 	msg in Promise
@@ -215,6 +219,7 @@ sig AcceptedTransition extends ReceiveTransition {} {
 
 abstract sig InitTransition extends Transition {} {
 	no pre
+	no sent
 }
 
 sig ProposerInitTransition extends InitTransition {} {
@@ -252,12 +257,21 @@ fun predd[t: Transition, r: Transition->Transition] : lone Transition {
 }
 
 // Transport guarantees
+fact dontforge {
+	all e: ReceiveTransition | some ep : Transition | ep->e in del
+}
 
 
 run {
+	some Transition.sent
+	some ReceiveTransition
+	// some ReadTransition.rval
+	/*
 	some Proposer
 	some Acceptor
 	all r: Role | some r.events
 	some ReadTransition
 	some WriteTransition
-} for 5
+	*/
+} // for 9 but 1 Acceptor
+
