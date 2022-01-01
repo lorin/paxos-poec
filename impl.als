@@ -1,6 +1,5 @@
 open util/natural
 open util/relation
-open util/ordering[Transition] as Event
 
 // values
 sig Val {}
@@ -94,11 +93,14 @@ abstract sig Transition {
 	eo: set Transition,
 	role: Role,
 	del: set Transition,
-	succ: lone Transition,
-	succr: lone Transition
+	next: lone Transition,
+	nextr: lone Transition
 } {
-	succ = this.Event/next
-	succr = {e : role.events | this->e in @eo and no ep: role.events | {
+	next = { e: Transition | this->e in @eo and no ep: Transition | {
+		this->ep in @eo
+		ep->e in @eo
+	}}
+	nextr = {e : role.events | this->e in @eo and no ep: role.events | {
 		this->ep in @eo
 		ep->e in @eo
 	}}}
@@ -108,12 +110,8 @@ abstract sig Transition {
 fact "eo is an enumeration" {
 	// an enumeration is a natural total ordering
 	// but we acutally don't want total, since we don't want reflexive
-
-
 	all disj e1,e2: Transition | (e1->e2) in eo or (e2->e1) in eo
 	relation/acyclic[eo, Transition]
-
-	succ in eo
 
 }
 
