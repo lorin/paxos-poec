@@ -1,4 +1,4 @@
-# Paxos
+# Paxos described using Principles of Eventual Consistency
 
 Describing the Paxos algorithm using Sebastian Burckhardt's approach as documented in his book [Principles of Eventual Consistency][PoEC].
 

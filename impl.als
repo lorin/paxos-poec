@@ -97,6 +97,7 @@ fact "eo is an enumeration" {
 	// an enumeration is a natural total ordering
 	// but we acutally don't want total, since we don't want reflexive
 
+
 	all disj e1,e2: Transition | (e1->e2) in eo or (e2->e1) in eo
 	relation/acyclic[eo, Transition]
 
@@ -126,18 +127,18 @@ sig WriteTransition extends CallTransition {
 	pre+post in ProposerState
 	post.proposer = pre.proposer
 	post.value in op.val
+	sent = {s : Prepare | s.pid=pre.proposer and s.n=pre.proposer.n}
+	one sent
+}
 
-  // TODO: fix this logic here, do set builder notation, set comprehension
-	let s = (sent <: Prepare) | {
-		one s
-		s.pid = pre.proposer
-		s.n = pre.proposer.n
-	}
+fun majority[n: Int] : Int {
+	next[div[n, 2]]
 }
 
 sig ReadTransition extends CallTransition {
 	rval: lone Val
 } {
+	no sent
 	role in Learner
 	op in Read
 	some pre & LearnerState
@@ -157,7 +158,8 @@ fact "All messages that exist must have been sent" {
 sig PromiseTransition extends ReceiveTransition {} {
 	role in Proposer
 	msg in Promise
-	pre+post in ProposerState
+	some pre & ProposerState
+	some post & ProposerState
 	post.proposer = pre.proposer
 	let promise = Promise <: msg | {
 		promise.ppid=pre.proposer
@@ -177,17 +179,14 @@ sig PrepareTransition extends ReceiveTransition {} {
 	post.promised = natural/max[pre.promised + (Prepare <: msg).n]
 	post.accepted = pre.accepted
 	// We only send if msg.n was greater than what we promised
-	natural/gt[msg.n, pre.promised] => {
-		let snt = Promise <: sent | {
-			one snt
+	natural/gt[msg.n, pre.promised] implies {
+		one sent
+		some snt : Promise <: sent | {
 			snt.aid = pre.acceptor
 			snt.ppid = msg.pid
-			some v => {
-				one Proposal <: snt.p
-				snt.p.n = pre.promised
-			}
+			snt.p = pre.accepted
 		}
-	}
+	} else no sent
 }
 
 sig AcceptTransition extends ReceiveTransition {} {
@@ -196,25 +195,24 @@ sig AcceptTransition extends ReceiveTransition {} {
 		some accept
 		pre+post in AcceptorState
 		post.acceptor = pre.acceptor
-		pre.acceptor in accept.ids => {
-			natural/gte[accept.p.n, pre.promised] => {
+		(pre.acceptor in accept.ids and natural/gte[accept.p.n, pre.promised]) implies {
 				post.accepted = accept.p
 				some accepted : Accepted | {
 					sent = accepted
 					accepted.aid = pre.acceptor
 					accepted.p = accept.p
-				}
 			}
-		}
+		} else no sent
 	}
 }
 
 sig AcceptedTransition extends ReceiveTransition {} {
 	role in Learner
+	no sent
+	some pre & LearnerState
+	some post & LearnerState
 	let accepted = Accepted <: msg | {
 		some accepted
-		some pre & LearnerState
-		some post & LearnerState
 		post.votes = pre.votes ++ accepted.aid->accepted.p.v
 	}
 
@@ -265,17 +263,28 @@ fact dontforge {
 	all e: ReceiveTransition | some ep : Transition | ep->e in del
 }
 
+assert readsAlwaysReturnSameValue {
+	all disj r1, r2: ReadTransition | r1.rval = r2.rval
 
+}
+
+// check readsAlwaysReturnSameValue for 11 but 1 Proposer, 1 Acceptor, 2 ReadTransition
+
+run {
+	some LearnerState.votes
+	//some ReadTransition.rval
+} for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
+
+/*
 run {
 	some Transition.sent
 	some ReceiveTransition
 	// some ReadTransition.rval
-	/*
-	some Proposer
-	some Acceptor
-	all r: Role | some r.events
-	some ReadTransition
-	some WriteTransition
-	*/
+	// some Proposer
+	// some Acceptor
+	// all r: Role | some r.events
+	// some ReadTransition
+	// some WriteTransition
 } for 5 // for 9 but 1 Acceptor
+*/
 
