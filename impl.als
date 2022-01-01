@@ -255,9 +255,12 @@ fun predd[t: Transition, r: Transition->Transition] : lone Transition {
 
 
 run {
-some WriteTransition
-
-}
+	some Proposer
+	some Acceptor
+	all r: Role | some r.events
+	some ReadTransition
+	some WriteTransition
+} for 5
 
 /*
 run {
