@@ -11,12 +11,9 @@ abstract sig Role {
 } {
 	events = role.this
 	eor = events <: eo :> events
-	// some InitTransition & events
 
-/*
 	all e: events |
 		(no e.pre and no predd[e, eor]) or predd[e, eor].post = e.pre
-*/
 }
 
 
@@ -121,6 +118,7 @@ abstract sig CallTransition extends Transition{
 
 sig WriteTransition extends CallTransition {
 } {
+	/*
 	role in Proposer
 	op in Write
 	pre+post in ProposerState
@@ -132,6 +130,7 @@ sig WriteTransition extends CallTransition {
 		s.pid = pre.proposer
 		s.n = pre.proposer.n
 	}
+	*/
 }
 
 sig ReadTransition extends CallTransition {
@@ -257,12 +256,16 @@ fun predd[t: Transition, r: Transition->Transition] : lone Transition {
 // Transport guarantees
 
 
-
-
 run {
-	some Proposer
-	some Acceptor
-	all r: Role | some r.events
+some WriteTransition
+}
+
+/*
+run {
+	// some Proposer
+	// some Acceptor
+	// all r: Role | some r.events
 	//some ReadTransition
 	some WriteTransition
-} for 11 but 1 Acceptor, 1 Proposer, 1 ProposerInitTransition, 1 LearnerInitTransition, 1 AcceptorInitTransition, 1 ReadTransition, 1 WriteTransition, 1 Val, 1 Proposal, 1 Prepare, 1 Promise, 1 Accept, 1 Accepted
+} for 7 but 1 Acceptor, 1 Proposer, 1 ProposerInitTransition, 1 LearnerInitTransition, 1 AcceptorInitTransition, 1 ReadTransition, 1 WriteTransition, 1 Val, 1 Proposal, 1 Prepare, 1 Promise, 1 Accept, 1 Accepted
+*/
