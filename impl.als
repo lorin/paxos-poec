@@ -307,7 +307,7 @@ assert readsAlwaysReturnSameValue {
 
 
 run {
-	//#Acceptor=3
+	#Acceptor=3
 	#Proposer=2
 	#WriteTransition=2
 	some ReadTransition.rval
@@ -326,7 +326,7 @@ run {
 	// some PromiseTransition
 	// some LearnerState.votes
 	// some Accept
-}  for 11 but 1 Acceptor, 2 Proposer, 1 ReadTransition, 2 WriteTransition
+}  for 17 but 3 Acceptor, 2 Proposer, 1 ReadTransition, 2 WriteTransition
 // for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
 //for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
 
