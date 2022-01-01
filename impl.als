@@ -304,7 +304,6 @@ assert readsAlwaysReturnSameValue {
 
 // check readsAlwaysReturnSameValue for 11 but 1 Proposer, 1 Acceptor, 2 ReadTransition
 
-run {}
 
 run {
 	some ProposerInitTransition
