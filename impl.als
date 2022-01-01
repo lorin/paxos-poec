@@ -291,15 +291,21 @@ assert readsAlwaysReturnSameValue {
 // check readsAlwaysReturnSameValue for 11 but 1 Proposer, 1 Acceptor, 2 ReadTransition
 
 run {
+	some ProposerInitTransition
 	some AcceptorInitTransition
-	some Prepare
-	some Promise
+	some LearnerInitTransition
+	some WriteTransition
+	some ReadTransition
+	some PromiseTransition
+	// some Prepare
+	//some Promise
 	// some ProposerState.responses
 	// some PromiseTransition
 	// some LearnerState.votes
 	// some Accept
 	// some ReadTransition.rval
-} for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
+}  for 6 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
+//for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
 
 /*
 run {
