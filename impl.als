@@ -123,15 +123,13 @@ sig WriteTransition extends CallTransition {
 	pre+post in ProposerState
 	post.proposer = pre.proposer
 
-	(ProposerState <: post).value = op.val
+	// (ProposerState <: post).value = op.val
 
-	/*
 	let s = (sent <: Prepare) | {
 		one s
 		s.pid = pre.proposer
 		s.n = pre.proposer.n
 	}
-	*/
 }
 
 sig ReadTransition extends CallTransition {
