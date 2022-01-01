@@ -32,11 +32,16 @@ F(read, C) evaluates to the falue written by the first write in E according to t
 
 ## Protocol pseudocode
 
-We're going to implement the Paxos protocol in Burckhardt's pseudocode, using the description in [Paxos Made Simple][PMS].
+Below is my implementation of the Paxos protocol in Burckhardt's pseudocode, using the description in [Paxos Made Simple][PMS].
 
 To keep things simple, I'm going to assume there's a single Learner, that reliably receives "accepted" messages from all of the acceptors.
 
 All other message can potentially be lost.
+
+Note that this pseudocode doesn't get used directly by my Alloy model. Instead, I manually translate it into the model using the approach described in
+Section 8.4 Pseudocode Compilation (p101) of [PoEC].
+
+In TLA+, you can use PlusCal, which will automatically do the translation for you.
 
 ```
 // default of Val is undef
@@ -162,9 +167,7 @@ protocol Paxos<Val> {
 }
 ```
 
-## Translating to Alloy
-
-See Section 8.4 Pseudocode Compilation (p101) of [PoEC] for how to translate pseudocode to the model.
+## Alloy model
 
 You can find my model at [impl.als](impl.als).
 
