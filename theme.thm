@@ -15,30 +15,19 @@
    <type name="AcceptorInitTransition"/>
    <type name="AcceptorState"/>
    <type name="AcceptTransition"/>
-   <type name="CallTransition"/>
-   <type name="InitTransition"/>
    <type name="Int"/>
+   <type name="Learner"/>
    <type name="LearnerInitTransition"/>
    <type name="LearnerState"/>
-   <type name="Message"/>
-   <type name="Op"/>
    <type name="Prepare"/>
    <type name="PrepareTransition"/>
    <type name="Promise"/>
    <type name="PromiseTransition"/>
-   <type name="Proposal"/>
    <type name="Proposer"/>
    <type name="ProposerInitTransition"/>
-   <type name="ProposerState"/>
-   <type name="Read"/>
    <type name="ReadTransition"/>
-   <type name="ReceiveTransition"/>
-   <type name="Role"/>
-   <type name="State"/>
    <type name="String"/>
-   <type name="Transition"/>
    <type name="univ"/>
-   <type name="Val"/>
    <type name="Write"/>
    <type name="WriteTransition"/>
    <type name="seq/Int"/>
@@ -47,18 +36,77 @@
    <set name="natural/Zero" type="natural/Natural"/>
 </node>
 
+<node color="Blue">
+   <type name="CallTransition"/>
+</node>
+
+<node hideunconnected="no">
+   <type name="Transition"/>
+</node>
+
 <node hideunconnected="yes">
-   <type name="natural/Natural"/>
+   <type name="Proposal"/>
+</node>
+
+<node hideunconnected="yes" shape="Egg" color="Green">
+   <type name="Op"/>
+</node>
+
+<node shape="Ellipse" color="Gray">
+   <type name="InitTransition"/>
+</node>
+
+<node shape="Parallelogram">
+   <type name="ReceiveTransition"/>
 </node>
 
 <node visible="no">
-   <type name="Learner"/>
+   <type name="Read"/>
+   <type name="Role"/>
+   <type name="State"/>
+   <type name="Val"/>
+   <type name="natural/Natural"/>
 </node>
 
+<node visible="no" hideunconnected="yes">
+   <type name="Message"/>
+</node>
+
+<node visible="no" numberatoms="no">
+   <type name="ProposerState"/>
+</node>
+
+<edge attribute="yes">
+   <relation name="role"> <type name="Transition"/> <type name="Role"/> </relation>
+   <relation name="rval"> <type name="ReadTransition"/> <type name="Val"/> </relation>
+   <relation name="val"> <type name="Write"/> <type name="Val"/> </relation>
+</edge>
+
+<edge visible="no">
+   <relation name="$ep"> <type name="ReceiveTransition"/> <type name="Transition"/> </relation>
+   <relation name="eo"> <type name="Transition"/> <type name="Transition"/> </relation>
+   <relation name="next"> <type name="Transition"/> <type name="Transition"/> </relation>
+   <relation name="p"> <type name="Accept"/> <type name="Proposal"/> </relation>
+   <relation name="p"> <type name="Accepted"/> <type name="Proposal"/> </relation>
+   <relation name="post"> <type name="Transition"/> <type name="State"/> </relation>
+   <relation name="pre"> <type name="Transition"/> <type name="State"/> </relation>
+   <relation name="sent"> <type name="Transition"/> <type name="Message"/> </relation>
+</edge>
+
 <edge visible="no" attribute="yes">
-   <relation name="n"> <type name="Prepare"/> <type name="natural/Natural"/> </relation>
+   <relation name="msg"> <type name="ReceiveTransition"/> <type name="Message"/> </relation>
    <relation name="n"> <type name="Proposal"/> <type name="natural/Natural"/> </relation>
-   <relation name="n"> <type name="Proposer"/> <type name="natural/Natural"/> </relation>
+   <relation name="v"> <type name="Proposal"/> <type name="Val"/> </relation>
+</edge>
+
+<edge visible="yes">
+   <relation name="del"> <type name="Transition"/> <type name="Transition"/> </relation>
+   <relation name="eor"> <type name="Role"/> <type name="Transition"/> <type name="Transition"/> </relation>
+   <relation name="op"> <type name="CallTransition"/> <type name="Op"/> </relation>
+</edge>
+
+<edge visible="yes" attribute="yes">
+   <relation name="votes"> <type name="LearnerState"/> <type name="Acceptor"/> <type name="Val"/> </relation>
 </edge>
 
 </view>

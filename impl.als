@@ -310,6 +310,9 @@ run {
 	#Acceptor=3
 	#Proposer=2
 	#WriteTransition=2
+	#Write=2
+	all disj t1, t2: WriteTransition | no t1.op&t2.op
+	all disj w1,w2: Write | no w1.val & w2.val
 	some ReadTransition.rval
 	// some ProposerInitTransition
 	// some AcceptorInitTransition
@@ -326,7 +329,7 @@ run {
 	// some PromiseTransition
 	// some LearnerState.votes
 	// some Accept
-}  for 17 but 3 Acceptor, 2 Proposer, 1 ReadTransition, 2 WriteTransition
+}  for 17 but 3 Acceptor, 2 Proposer, 1 ReadTransition, 2 WriteTransition, 2 Write
 // for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
 //for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
 
