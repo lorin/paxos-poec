@@ -122,8 +122,7 @@ sig WriteTransition extends CallTransition {
 	op in Write
 	pre+post in ProposerState
 	post.proposer = pre.proposer
-
-	// (ProposerState <: post).value = op.val
+	post.value in op.val
 
 	let s = (sent <: Prepare) | {
 		one s
@@ -257,6 +256,7 @@ fun predd[t: Transition, r: Transition->Transition] : lone Transition {
 
 run {
 some WriteTransition
+
 }
 
 /*
