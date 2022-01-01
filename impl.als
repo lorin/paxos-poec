@@ -244,8 +244,9 @@ abstract sig InitTransition extends Transition {} {
 
 sig ProposerInitTransition extends InitTransition {} {
 	role in Proposer
-	no value
-	no responses
+	post.proposer = role
+	no post.value
+	no post.responses
 }
 
 fact "every proposer init transition is associated with a different proposer" {
@@ -255,13 +256,14 @@ fact "every proposer init transition is associated with a different proposer" {
 
 sig AcceptorInitTransition extends InitTransition {} {
 	role in Acceptor
-	no accepted
-	no promised
+	post.acceptor = role
+	no post.accepted
+	no post.promised
 }
 
 sig LearnerInitTransition extends InitTransition {} {
 	role in Learner
-	no votes
+	no post.votes
 }
 
 // Predecesor. We can't use "pred" because that means "predicate"
@@ -291,7 +293,7 @@ assert readsAlwaysReturnSameValue {
 run {
 	some AcceptorInitTransition
 	some Prepare
-	// some Promise
+	some Promise
 	// some ProposerState.responses
 	// some PromiseTransition
 	// some LearnerState.votes
