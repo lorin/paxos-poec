@@ -39,7 +39,8 @@ All other message can potentially be lost.
 Note that this pseudocode doesn't get used directly by my Alloy model. Instead, I manually translate it into the model using the approach described in
 Section 8.4 Pseudocode Compilation (p101) of [PoEC].
 
-In TLA+, you can use [PlusCal], which will automatically do the translation for you.
+When modeling in TLA+, you can use PlusCal, which will automatically do the translation for you from an imperative language to a model.
+With Alloy, we have to do this translation by hand.
 
 ```
 // default of Val is undef
@@ -50,17 +51,23 @@ protocol Paxos<Val> {
 
   struct Proposal(n: nat, v: Val)
 
+  // Proposer → Acceptor
   // Lamport calls this: "a prepare request with number n"
-  // We also send the pid of the proposer so that the acceptor knows where to send the response to
+  // We also send the pid of the proposer so that the acceptor knows where
+  // to send the response to
   message Prepare(pid: nat, n: nat): dontforge
 
 
-  // a promise not to accept any more proposals numbered less than n and with
-  // the highest-numbered proposal (if any) that it has accepted.
+  // Acceptor → Proposer
+  // a promise not to accept any more proposals numbered less than n sent
+  // in the original prepare message
+  // also includes the highest-numbered proposal (if any) that it has accepted.
   message Promise(aid: nat, pid: nat, p: Proposal): dontforge
 
+  // Proposer → set Acceptor
   message Accept(ids: set<nat>, p: Proposal) : dontforge
 
+  // Proposer → Learner
   message Accepted(aid: nat, p: Proposal): reliable
 
   // From Paxos Made Simple:
@@ -166,4 +173,3 @@ You can find my model at [impl.als](impl.als).
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
 [PMS]: https://lamport.azurewebsites.net/pubs/paxos-simple.pdf
 [Alloy]: https://alloy.readthedocs.io/
-[PlusCal]:
