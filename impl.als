@@ -6,16 +6,14 @@ sig Val {}
 
 abstract sig Role {
 	events: set Transition,
-	// eor: Transition->set Transition
+	eor: Transition->set Transition
 
 } {
 	events = role.this
-	// eor = events <: eo :> events
+	eor = events <: eo :> events
 
-/*
 	all e: events |
 		(no e.pre and no predd[e, eor]) or predd[e, eor].post = e.pre
-		*/
 }
 
 
@@ -279,5 +277,5 @@ run {
 	some ReadTransition
 	some WriteTransition
 	*/
-} // for 9 but 1 Acceptor
+} for 5 // for 9 but 1 Acceptor
 
