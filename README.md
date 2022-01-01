@@ -5,11 +5,9 @@
 This repo models the Paxos algorithm using Sebastian Burckhardt's approach for modeling eventually consistent data types.
 This approach is documented in his excellent (and free!) book [Principles of Eventual Consistency][PoEC], which I'll refer to here as PoEC.
 
-I've implemented the model in [Alloy], which is a great fit for the [PoEC] approach since they are both graph-based.
+I've implemented the model in [Alloy], which is a great fit for the [PoEC] approach since they both rely heavily on modeling with graphs.
 
 The model implemented here is based on the description of the algorithm in Lamport's [Paxos Made Simple][PMS] paper.
-
-
 
 ## Specifying behavior as a replicated data type
 
@@ -41,7 +39,7 @@ All other message can potentially be lost.
 Note that this pseudocode doesn't get used directly by my Alloy model. Instead, I manually translate it into the model using the approach described in
 Section 8.4 Pseudocode Compilation (p101) of [PoEC].
 
-In TLA+, you can use PlusCal, which will automatically do the translation for you.
+In TLA+, you can use [PlusCal], which will automatically do the translation for you.
 
 ```
 // default of Val is undef
@@ -49,13 +47,6 @@ In TLA+, you can use PlusCal, which will automatically do the translation for yo
 
 protocol Paxos<Val> {
   const MAJORITY : nat; // number of responses that constitutes a majority
-
-  // From Paxos Made Live, Section 2.1
-  //   Messages can take arbitrarily long to be delivered, can be duplicated,
-  //   and can be lost, but they are not corrupted.
-  //
-  // This corresponds to the dontforge transport guarantee
-  // See Section 8.2 (Transport Guarantees) in PoEC
 
   struct Proposal(n: nat, v: Val)
 
@@ -175,3 +166,4 @@ You can find my model at [impl.als](impl.als).
 [PoEC]: https://www.microsoft.com/en-us/research/publication/principles-of-eventual-consistency/
 [PMS]: https://lamport.azurewebsites.net/pubs/paxos-simple.pdf
 [Alloy]: https://alloy.readthedocs.io/
+[PlusCal]:
