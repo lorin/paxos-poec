@@ -118,11 +118,11 @@ abstract sig CallTransition extends Transition{
 
 sig WriteTransition extends CallTransition {
 } {
-	/*
 	role in Proposer
 	op in Write
 	pre+post in ProposerState
 	post.proposer = pre.proposer
+	/*
 	(ProposerState <: post).value = op.val
 
 	let s = (sent <: Prepare) | {
