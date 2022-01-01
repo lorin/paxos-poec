@@ -131,6 +131,7 @@ sig WriteTransition extends CallTransition {
 	one sent
 }
 
+// compare the majority required given a total number of somethings
 fun majority[n: Int] : Int {
 	next[div[n, 2]]
 }
@@ -143,7 +144,7 @@ sig ReadTransition extends CallTransition {
 	op in Read
 	some pre & LearnerState
 	post = pre
-	rval = {v: Val | gte[#pre.votes.v, next[div[#Acceptor, 2]]] }
+	rval = {v: Val | gte[#pre.votes.v, majority[#Acceptor]]}
 }
 
 
@@ -165,8 +166,24 @@ sig PromiseTransition extends ReceiveTransition {} {
 		promise.ppid=pre.proposer
 		post.responses = pre.responses + promise.aid
 
+		// If the acceptor has already accepted a proposal, use the value of that proposal
 		let proposal = promise.p | {
-			some proposal => (ProposerState <: post).value = proposal.v
+			some proposal implies {
+				post.value = proposal.v
+			} else {
+			post.value = pre.value
+			}
+		}
+
+		gte[#post.responses, majority[#Acceptor]] implies {
+			one sent
+			some s : Accept <: sent | {
+				s.ids = post.responses
+				s.p.n = role.n
+				s.p.v = post.value
+			}
+		} else {
+			no sent
 		}
 	}
 }
