@@ -19,6 +19,9 @@ abstract sig Role {
 
 sig Proposer extends Role {
 	n: Natural
+} {
+	// We disallow zero so that we can initialize the acceptors to zero
+	no n & natural/Zero
 }
 
 fact "all proposers use different proposal numbers" {
@@ -76,7 +79,7 @@ sig ProposerState extends State {
 sig AcceptorState extends State {
 	acceptor: Acceptor,
 	accepted: lone Proposal,
-	promised: lone Natural
+	promised: Natural
 }
 
 sig LearnerState extends State {
@@ -196,7 +199,9 @@ sig PrepareTransition extends ReceiveTransition {} {
 	post.acceptor = pre.acceptor
 	post.promised = natural/max[pre.promised + (Prepare <: msg).n]
 	post.accepted = pre.accepted
-	// We only send if msg.n was greater than what we promised
+
+
+	// We only send if msg.n was greater than what we previously promised
 	natural/gt[msg.n, pre.promised] implies {
 		one sent
 		some snt : Promise <: sent | {
@@ -257,8 +262,8 @@ fact "every proposer init transition is associated with a different proposer" {
 sig AcceptorInitTransition extends InitTransition {} {
 	role in Acceptor
 	post.acceptor = role
+	post.promised = natural/Zero
 	no post.accepted
-	no post.promised
 }
 
 sig LearnerInitTransition extends InitTransition {} {
@@ -295,16 +300,19 @@ run {
 	some AcceptorInitTransition
 	some LearnerInitTransition
 	some WriteTransition
-	some ReadTransition
+	some PrepareTransition
+
+	some Promise
 	some PromiseTransition
-	// some Prepare
+
 	//some Promise
+	//some ReadTransition
 	// some ProposerState.responses
 	// some PromiseTransition
 	// some LearnerState.votes
 	// some Accept
-	// some ReadTransition.rval
-}  for 6 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
+	some ReadTransition.rval
+}  for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition, 1 WriteTransition
 //for 9 but 1 Acceptor, 1 Proposer, 1 ReadTransition
 
 /*
