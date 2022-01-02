@@ -261,6 +261,7 @@ sig AcceptedTransition extends ReceiveTransition {} {
 abstract sig InitTransition extends Transition {} {
 	no pre
 	no sent
+	no rval
 }
 
 sig ProposerInitTransition extends InitTransition {} {
