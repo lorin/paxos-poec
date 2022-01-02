@@ -145,6 +145,7 @@ sig WriteTransition extends CallTransition {
 	post.value in op.val
 	sent = {s : Prepare | s.pid=pre.proposer and s.n=pre.proposer.n}
 	one sent
+	no rval
 }
 
 // compare the majority required given a total number of somethings
