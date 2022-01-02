@@ -97,7 +97,8 @@ abstract sig Transition {
 	role: Role,
 	del: set Transition,
 	next: lone Transition,
-	nextr: lone Transition
+	nextr: lone Transition,
+	rval: lone Val+OK
 } {
 	next = { e: Transition | this->e in @eo and no ep: Transition | {
 		this->ep in @eo
@@ -151,9 +152,7 @@ fun majority[n: Int] : Int {
 	next[div[n, 2]]
 }
 
-sig ReadTransition extends CallTransition {
-	rval: lone Val
-} {
+sig ReadTransition extends CallTransition {} {
 	no sent
 	role in Learner
 	op in Read
@@ -223,6 +222,8 @@ sig PrepareTransition extends ReceiveTransition {} {
 		}
 	} else no sent
 }
+
+one sig OK {}
 
 sig AcceptTransition extends ReceiveTransition {} {
 	role in Acceptor
