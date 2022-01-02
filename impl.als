@@ -238,12 +238,12 @@ one sig OK {}
 
 sig AcceptTransition extends ReceiveTransition {} {
 	role in Acceptor
+	no rval
 	let accept = Accept <: msg |  {
 		some accept
 		pre+post in AcceptorState
 		post.acceptor = pre.acceptor
 		(pre.acceptor in accept.ids and natural/gte[accept.p.n, pre.promised]) implies {
-				OK in rval
 				post.accepted = accept.p
 				some accepted : Accepted | {
 					sent = accepted
@@ -252,7 +252,6 @@ sig AcceptTransition extends ReceiveTransition {} {
 			}
 		} else {
 			no sent
-			no rval
 		}
 	}
 }
