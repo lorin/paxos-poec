@@ -235,6 +235,7 @@ sig AcceptTransition extends ReceiveTransition {} {
 		pre+post in AcceptorState
 		post.acceptor = pre.acceptor
 		(pre.acceptor in accept.ids and natural/gte[accept.p.n, pre.promised]) implies {
+				OK in rval
 				post.accepted = accept.p
 				some accepted : Accepted | {
 					sent = accepted
