@@ -1,0 +1,73 @@
+<?xml version="1.0"?>
+<alloy>
+
+<view>
+
+<defaultnode/>
+
+<defaultedge/>
+
+<node>
+   <type name="Int"/>
+   <type name="Read"/>
+   <type name="String"/>
+   <type name="Write"/>
+   <type name="impl/Accept"/>
+   <type name="impl/Accepted"/>
+   <type name="impl/AcceptedTransition"/>
+   <type name="impl/Acceptor"/>
+   <type name="impl/AcceptorInitTransition"/>
+   <type name="impl/AcceptorState"/>
+   <type name="impl/AcceptTransition"/>
+   <type name="impl/CallTransition"/>
+   <type name="impl/InitTransition"/>
+   <type name="impl/Learner"/>
+   <type name="impl/LearnerInitTransition"/>
+   <type name="impl/LearnerState"/>
+   <type name="impl/Message"/>
+   <type name="impl/OK"/>
+   <type name="impl/Prepare"/>
+   <type name="impl/PrepareTransition"/>
+   <type name="impl/Promise"/>
+   <type name="impl/PromiseTransition"/>
+   <type name="impl/Proposal"/>
+   <type name="impl/Proposer"/>
+   <type name="impl/ProposerInitTransition"/>
+   <type name="impl/ProposerState"/>
+   <type name="impl/Read"/>
+   <type name="impl/ReadTransition"/>
+   <type name="impl/ReceiveTransition"/>
+   <type name="impl/Role"/>
+   <type name="impl/State"/>
+   <type name="impl/Val"/>
+   <type name="impl/Write"/>
+   <type name="impl/WriteTransition"/>
+   <type name="seq/Int"/>
+   <type name="impl/natural/Natural"/>
+   <type name="impl/natural/ord/Ord"/>
+   <set name="impl/natural/One" type="impl/natural/Natural"/>
+   <set name="impl/natural/Zero" type="impl/natural/Natural"/>
+</node>
+
+<node visible="no">
+   <type name="univ"/>
+   <type name="impl/Op"/>
+   <type name="impl/Transition"/>
+</node>
+
+<node visible="yes">
+   <type name="Event"/>
+</node>
+
+<edge visible="no" attribute="no">
+   <relation name="op"> <type name="Event"/> <type name="impl/CallTransition"/> </relation>
+</edge>
+
+<edge visible="no" attribute="yes">
+   <relation name="arg"> <type name="Write"/> <type name="impl/Val"/> </relation>
+   <relation name="result"> <type name="Read"/> <type name="impl/Val"/> </relation>
+</edge>
+
+</view>
+
+</alloy>
