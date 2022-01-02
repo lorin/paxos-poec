@@ -242,7 +242,10 @@ sig AcceptTransition extends ReceiveTransition {} {
 					accepted.aid = pre.acceptor
 					accepted.p = accept.p
 			}
-		} else no sent
+		} else {
+			no sent
+			no rval
+		}
 	}
 }
 
