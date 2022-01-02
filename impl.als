@@ -190,6 +190,7 @@ sig PromiseTransition extends ReceiveTransition {} {
 		}
 
 		gte[#post.responses, majority[#Acceptor]] implies {
+			rval = OK
 			one sent
 			some s : Accept <: sent | {
 				s.ids = post.responses
@@ -198,6 +199,7 @@ sig PromiseTransition extends ReceiveTransition {} {
 			}
 		} else {
 			no sent
+			no rval
 		}
 	}
 }
