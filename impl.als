@@ -17,6 +17,14 @@ abstract sig Role {
 
 	all e: events |
 		(no e.pre and no predd[e, eor]) or predd[e, eor].post = e.pre
+
+	// any two calls must always have a return between them
+	all disj e1, e2: events & CallTransition |
+		some e3: events | {
+			e1->e3 in eor
+			e3->e2 in eor
+			some e3.rval
+		}
 }
 
 
