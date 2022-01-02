@@ -252,6 +252,7 @@ sig AcceptTransition extends ReceiveTransition {} {
 sig AcceptedTransition extends ReceiveTransition {} {
 	role in Learner
 	no sent
+	no rval
 	some pre & LearnerState
 	some post & LearnerState
 	let accepted = Accepted <: msg | {
