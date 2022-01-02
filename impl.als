@@ -317,6 +317,23 @@ fact dontforge {
 	all e: ReceiveTransition | some ep : Transition | ep->e in del
 }
 
+fun returns[ts: set Transition] : set Transition {
+	{t : ts | some t.rval}
+}
+
+fun calls[ts: set Transition] : set Transition {
+	ts & CallTransition
+}
+
+// Trajectores are well-formed:
+fact wellformed {
+	all r: Role, e: r.events |
+	// each event is preceded by no more returns than calls
+		let preceded = ^~(r.eor)[e] |
+			#{returns[preceded]} <= #{calls[preceded]}
+}
+
+
 assert readsAlwaysReturnSameValue {
 	all disj r1, r2: ReadTransition | r1.rval = r2.rval
 
