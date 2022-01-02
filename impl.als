@@ -213,7 +213,7 @@ sig PrepareTransition extends ReceiveTransition {} {
 	post.acceptor = pre.acceptor
 	post.promised = natural/max[pre.promised + (Prepare <: msg).n]
 	post.accepted = pre.accepted
-
+	no rval
 
 	// We only send if msg.n was greater than what we previously promised
 	natural/gt[msg.n, pre.promised] implies {
